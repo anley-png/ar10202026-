@@ -1,0 +1,30 @@
+name: Generate audio (SILMA)
+on:
+  workflow_dispatch:
+    inputs:
+      ref_file:
+        description: "Reference recording in the repo, e.g. ref/voice.wav"
+        required: true
+      ref_text:
+        description: "Exact words spoken in that recording"
+        required: true
+jobs:
+  audio:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install silma-tts
+      - name: Generate audio
+        env:
+          REF_FILE: ${{ inputs.ref_file }}
+          REF_TEXT: ${{ inputs.ref_text }}
+        run: python tools/generate_audio.py --ref "$REF_FILE" --ref-text "$REF_TEXT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio
+          path: audio
