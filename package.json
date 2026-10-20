@@ -1,0 +1,10 @@
+{
+  "name": "arabic-letter-island",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prep": "rm -rf www && mkdir www && cp index.html sw.js manifest.webmanifest icon-192.png icon-512.png www/ && cp -r audio www/"
+  },
+  "dependencies": {"@capacitor/core": "^6.1.2", "@capacitor/android": "^6.1.2"},
+  "devDependencies": {"@capacitor/cli": "^6.1.2"}
+}

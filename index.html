@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Arabic Letter Island</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#bfe9ff">
+<style>
+:root{--i:#3b2f63;--p:#ff7a59}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:linear-gradient(#bfe9ff,#fff8e7);color:var(--i);min-height:100vh}
+header{display:flex;justify-content:space-between;padding:10px 14px;font-size:1.1rem}
+nav{display:flex;gap:6px;padding:4px 8px;justify-content:center;flex-wrap:wrap}
+button,select{font:inherit;border:0;border-radius:16px;padding:10px 14px;background:var(--p);color:#fff;font-weight:700;cursor:pointer;box-shadow:0 4px 0 #0002}
+select{background:#fff;color:var(--i)}
+button:active{transform:translateY(3px)}
+.ar{font-family:'Noto Naskh Arabic','Amiri','Scheherazade New','Segoe UI','Geeza Pro',serif;direction:rtl}
+#m{max-width:720px;margin:auto;padding:12px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;direction:rtl;margin-top:10px}
+.t{background:#fff;color:var(--i);font-size:2.4rem;padding:6px}
+.big{font-size:6rem;line-height:1.4}
+.cat{font-size:4rem;animation:b 1.6s infinite}
+@keyframes b{50%{transform:translateY(-10px) rotate(-6deg)}}
+.w{display:inline-block;animation:w 2.4s linear both}
+@keyframes w{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0)}}
+.pop{animation:p .35s}
+@keyframes p{from{transform:scale(.2)}}
+.box{display:inline-block;min-width:64px;height:78px;line-height:78px;border:3px dashed var(--i);border-radius:14px;margin:4px;font-size:2.6rem;background:#fff}
+.sh{animation:s .3s}
+@keyframes s{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.f{position:fixed;font-size:2rem;pointer-events:none;animation:f 1.2s ease-out forwards}
+@keyframes f{to{transform:translateY(-200px) rotate(360deg);opacity:0}}
+.snap{animation:sn .5s}@keyframes sn{40%{transform:scale(1.08)}}
+.card{animation:sl .5s}@keyframes sl{from{transform:translateX(120%)}}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;padding:12px 16px;border-radius:16px;box-shadow:0 4px 12px #0003}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+.cat2{animation:b 3s infinite}.eye{animation:bl 4s infinite;transform-box:fill-box;transform-origin:center}@keyframes bl{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.cl{position:fixed;top:56px;font-size:3rem;opacity:.7;animation:dr 45s linear infinite;pointer-events:none}@keyframes dr{from{left:-10%}to{left:100%}}
+html{-webkit-tap-highlight-color:transparent}
+body{-webkit-user-select:none;user-select:none;overscroll-behavior:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+button{min-height:48px;touch-action:manipulation}
+@media(max-width:600px){nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fffd;backdrop-filter:blur(6px);padding:6px 4px calc(6px + env(safe-area-inset-bottom));flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start}nav button{flex:0 0 auto;padding:8px 10px;font-size:.85rem}#m{padding-bottom:100px}.big{font-size:5rem}}
+</style>
+</head>
+<body>
+<header><b>🐱 Arabic Letter Island</b><span id="st">⭐ 0</span></header>
+<nav id="nav"></nav>
+<main id="m"></main>
+<script>
+const Z="\u200D",$=s=>document.querySelector(s),m=$('#m');
+const STEP=1000,LEAD=600; // 1 s between letters; voice plays first, letter appears LEAD ms later
+// [letter, name, sound, joinsToNext]
+const L=[["ا","alif","aa",0],["ب","ba","b",1],["ت","ta","t",1],["ث","tha","th",1],["ج","jiim","j",1],["ح","Haa","H",1],["خ","khaa","kh",1],["د","daal","d",0],["ذ","dhaal","dh",0],["ر","raa","r",0],["ز","zayn","z",0],["س","siin","s",1],["ش","shiin","sh",1],["ص","Saad","S",1],["ض","Daad","D",1],["ط","Taa","T",1],["ظ","DHaa","DH",1],["ع","'ayn","'",1],["غ","ghayn","gh",1],["ف","fa","f",1],["ق","qaaf","q",1],["ك","kaaf","k",1],["ل","laam","l",1],["م","miim","m",1],["ن","nuun","n",1],["ه","ha","h",1],["و","waaw","w",0],["ي","ya","y",1]];
+// [letter indexes, word, meaning, emoji]
+const LET="ابتثجحخدذرزسشصضطظعغفقكلمنهوي";
+const W=[["طالب","student","🎓","taalibun"],["بيت","house","🏠","beitun"],["كتاب","book","📖","kitaabun"],["باب","door","🚪","baabun"],["قمر","moon","🌙","qamarun"],["نبت","plant","🌱","nabtun"],["تبن","hay","🌾","tibnun"],["بحر","sea","🌊","bahrun"],["نهر","river","🏞️","nahrun"],["جمل","camel","🐪","jamalun"],["ولد","boy","👦","waladun"],["بنت","girl","👧","bintun"],["قلم","pen","✏️","qalamun"],["شمس","sun","☀️","shamsun"],["نجم","star","⭐","najmun"],["سمك","fish","🐟","samakun"],["ورد","rose","🌹","wardun"],["دب","bear","🐻","dubbun"],["كلب","dog","🐶","kalbun"],["ليل","night","🌃","leilun"],["نار","fire","🔥","naarun"],["شجر","trees","🌳","shajarun"],["ثلج","snow","❄️","thaljun"],["حوت","whale","🐋","hootun"],["فيل","elephant","🐘","feelun"],["تمر","dates","🌴","tamrun"],["عين","eye","👁️","einun"],["يد","hand","✋","yadun"],["سن","tooth","🦷","sinnun"],["جبل","mountain","⛰️","jabalun"],["ديك","rooster","🐓","deekun"],["ابن","son","👶","ibnun"],["جد","grandfather","👴","jaddun"],["فخذ","thigh","🦵","fakhdhun"],["ذيل","tail","🐕","dhaylun"],["رجل","man","👨","rajulun"],["زيت","oil","🫒","zaytun"],["خبز","bread","🍞","khubzun"],["نمر","tiger","🐅","namirun"],["دجاج","chicken","🐔","dajaajun"],["ضفدع","frog","🐸","difdaun"],["ظبي","deer","🦌","zabyun"],["غصن","branch","🌿","ghusnun"],["فم","mouth","👄","famun"],["لبن","milk","🥛","labanun"],["مطر","rain","🌧️","matarun"],["نحل","bees","🐝","nahlun"],["هرم","pyramid","🔺","haramun"],["وجه","face","🙂","wajhun"],["شاي","tea","🍵","shaayun"],["تفاح","apples","🍎","tuffaahun"],["ذباب","flies","🪰","dhubaabun"],["صوت","voice","🔊","sawtun"],["ضيف","guest","🧑","dayfun"],["غزال","gazelle","🦌","ghazaalun"],["قطار","train","🚆","qitaarun"],["كرسي","chair","🪑","kursiyyun"],["مفتاح","key","🔑","miftaahun"],["وقت","time","⏰","waqtun"],["صحن","plate","🍽️","sahnun"],["شباك","window","🪟","shubbaakun"],["ضباب","fog","🌫️","dabaabun"],["طبيب","doctor","🧑‍⚕️","tabiibun"],["عصفور","sparrow","🐦","usfuurun"],["ثعلب","fox","🦊","thalabun"],["دم","blood","🩸","damun"],["ورق","paper","📄","waraqun"],["طباخ","cook","🧑‍🍳","tabbaakhun"],["دماغ","brain","🧠","dimaaghun"],["رياض","gardens","🌷","riyaadun"],["ميراث","inheritance","📜","miiraathun"],["رباط","bond","🔗","ribaatun"],["ذراع","arm","💪","dhiraaun"],["دف","drum","🥁","daffun"],["جبال","mountains","🏔️","jibaalun"],["ديوان","office","🏢","diiwaanun"],["شاه","king","👑","shaahun"],["ناس","people","🧑‍🤝‍🧑","naasun"],["بنات","girls","👧","banaatun"],["ملاك","angel","👼","malaakun"],["حفاظ","keeping","🔒","hifaazun"],["حوض","pond","🏊","hawdun"],["قفص","cage","🐦","qafasun"],["صبح","morning","🌅","subhun"],["نخل","palms","🌴","nakhlun"],["وعد","promise","🤝","wadun"],["نظر","sight","👀","nazarun"],["حفظ","memorizing","🧠","hifzun"],["بيض","eggs","🥚","baydun"],["وضع","placing","📍","wadun"],["قصر","palace","🏰","qasrun"],["بطل","hero","🦸","batalun"],["قطط","cats","🐈","qitatun"],["عشب","grass","🌱","ushbun"],["نسر","eagle","🦅","nasrun"],["سكر","sugar","🍬","sukkarun"],["بحث","research","🔍","bahthun"],["طبخ","cooking","🍳","tabkhun"],["سمع","hearing","👂","samun"],["صبغ","dye","🎨","sabghun"],["كهف","cave","🕳️","kahfun"],["صيف","summer","🏖️","sayfun"],["خيط","thread","🧵","khaytun"],["شفق","twilight","🌇","shafaqun"],["قلب","heart","❤️","qalbun"],["حليب","milk","🥛","haliibun"],["مثل","example","💬","mathalun"],["عيش","life","🌿","ayshun"],["رش","spray","💦","rashshun"],["رصاص","pencil lead","✏️","rasaasun"],["غضب","anger","😠","ghadabun"],["بغل","mule","🐴","baghlun"],["بقر","cow","🐄","baqarun"],["عنب","grapes","🍇","inabun"],["نور","light","💡","nuurun"],["فول","beans","🫘","fuulun"]].map(([w,m,e,t])=>[[...w].map(c=>LET.indexOf(c)),w,m,e,t]);
+const VW="بَيْت بَاب كِتَاب قَمَر نَبْت تِبْن بَحْر نَهْر جَمَل وَلَد بِنْت قَلَم شَمْس نَجْم سَمَك وَرْد كَلْب لَيْل نَار شَجَر ثَلْج حُوت فِيل تَمْر عَيْن يَد جَبَل دِيك طَالِب ذَيْل رَجُل زَيْت خُبْز نَمِر غُصْن فَم لَبَن مَطَر نَحْل هَرَم وَجْه شَاي ذُبَاب صَوْت ضَيْف غَزَال قِطَار مِفْتَاح وَقْت صَحْن ضَبَاب طَبِيب عُصْفُور ثَعْلَب دَم وَرَق دِمَاغ رِيَاض مِيرَاث ذِرَاع جِبَال دِيوَان نَاس بَنَات حَوْض قَفَص صُبْح نَخْل وَعْد نَظَر حِفْظ بَيْض قَصْر بَطَل نَسْر بَحْث سَمْع كَهْف صَيْف خَيْط قَلْب عِنَب نُور فُول".split(' ');
+const MK=/[\u064B-\u0652]/;
+const vpar=s=>{const o=[];for(const ch of s){if(MK.test(ch)){if(o.length)o[o.length-1].m+=ch}else o.push({c:ch,m:''})}return o};
+const vc=(p,n)=>{const m=p[n].m,x=p[n+1],pl=x&&!x.m;return m.includes('\u064E')?(pl&&x.c=='ا'?'aa':'a'):m.includes('\u064F')?(pl&&x.c=='و'?'uu':'u'):m.includes('\u0650')?(pl&&x.c=='ي'?'ee':'i'):m.includes('\u0652')?'o':''};
+const VWK=VW.map(v=>{const p=vpar(v),pl=p.map(o=>o.c).join('');return{k:W.findIndex(w=>w[1]==pl),p}}).filter(o=>o.k>=0);
+const wfv=(p,n)=>{const ix=p.map(o=>LET.indexOf(o.c)),pv=n>0&&L[ix[n-1]][3],nx=n<p.length-1&&L[ix[n]][3];return(pv?Z:'')+p[n].c+p[n].m+(nx?Z:'')};
+function vlist(i,q,t){const code=['a','u','i','o','aa','uu','ee'][q],hit=VWK.filter(o=>o.p.some((l,n)=>l.c==L[i][0]&&vc(o.p,n)==code)).slice(0,2);
+ $('#ex').innerHTML=`<small><b>Words with ${t}</b></small>`+(hit.length?`<div class=grid style="grid-template-columns:repeat(2,1fr);gap:4px;margin:2px 0">`+hit.map(o=>`<button class=t data-k=${o.k} style="font-size:1.6rem;min-height:0;padding:2px"><span class=ar>${o.p.map((l,n)=>`<span style="color:${l.c==L[i][0]&&vc(o.p,n)==code?'#e63946':'#3b2f63'}">${wfv(o.p,n)}</span>`).join('')}</span><br><small style="font:11px sans-serif">${W[o.k][3]} ${W[o.k][2]}</small></button>`).join('')+`</div>`:'<p>No word yet</p>')}
+let built=[];try{built=JSON.parse(localStorage.getItem("bt"))||[]}catch(e){}
+let miss={};try{miss=JSON.parse(localStorage.getItem("ms"))||{}}catch(e){}
+function bump(i){miss[i]=(miss[i]||0)+1;try{localStorage.setItem("ms",JSON.stringify(miss))}catch(e){}}
+function grow(k){if(!built.includes(k)){built.push(k);try{localStorage.setItem("bt",JSON.stringify(built))}catch(e){}}}
+const COL=["#e63946","#2a9d8f","#f4a261","#6a4c93","#1d78c1","#e76f51"];
+let stars=0,T=[];
+try{stars=+localStorage.getItem('st')||0}catch(e){}
+const later=(f,ms)=>T.push(setTimeout(f,ms));
+function addStar(){stars++;try{localStorage.setItem('st',stars)}catch(e){}$('#st').textContent='⭐ '+stars}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),7000)}
+function alt(id){let r=id.match(/^l(\d+)$/);if(r)return L[+r[1]][1];r=id.match(/^w(\d+)$/);if(r)return W[+r[1]][4];r=id.match(/^v(\d+)_(\d+)$/);if(r)return L[+r[1]][2]+['a','u','i','','aa','uu','ee'][+r[2]];return ''}
+function tts(t,a){try{const v=speechSynthesis.getVoices().find(x=>/^ar/i.test(x.lang));speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(v?t:(a||t));if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';u.rate=.7;speechSynthesis.speak(u);if(!v&&!window._nv){window._nv=1;toast('No Arabic voice on this device, so English sounds are used. Install an Arabic voice or add recordings.')}}catch(e){}}
+// Plays audio/<id>.mp3 if it exists (recorded voice), otherwise falls back to browser TTS
+function say(t,id){const a=new Audio('audio/'+id+'.mp3');a.play().catch(()=>tts(t,alt(id)))}
+function boom(){for(let i=0;i<14;i++){const e=document.createElement('div');e.className='f';e.textContent=['🎉','⭐','✨','🌟'][i%4];e.style.left=Math.random()*90+'vw';e.style.top=60+Math.random()*30+'vh';document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}}
+const snd=i=>(i==0?"أ":L[i][0])+"َ";
+const frm=(i,p)=>[L[i][0],L[i][0]+Z,Z+L[i][0]+Z,Z+L[i][0]][p]; // isolated, initial, medial, final
+function wf(ix,k){const pv=k>0&&L[ix[k-1]][3],nx=k<ix.length-1&&L[ix[k]][3];return(pv?Z:"")+L[ix[k]][0]+(nx?Z:"")}
+const frmv=(i,p)=>[L[i][0],L[i][0]+"ـ","ـ"+L[i][0]+"ـ","ـ"+L[i][0]][p];
+const CAT='<div class=cat>🐱</div>';
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+
+const S={
+home(){m.innerHTML=`${CAT}<h1>Arabic Letter Island</h1><p>Touch, hear, write and build Arabic letters and words with the cat!</p><button onclick="go('letters')">Start ▶</button>`},
+letters(){
+ m.innerHTML=`<h2>Touch a letter</h2><div id=sh class="big ar">🐱</div><div id=nm>&nbsp;</div><div class=grid>`+L.map((l,i)=>`<button class="t ar" data-i="${i}">${l[0]}</button>`).join('')+`</div>`;
+ m.querySelector('.grid').onclick=e=>{let i=e.target.dataset.i;if(i==null)return;i=+i;
+  $('#sh').innerHTML=`<span class=w>${L[i][0]}</span>`;
+  $('#nm').innerHTML=`<b>${L[i][1]}</b> — “${L[i][2]}” <button onclick="go('forms',${i})">See its forms</button>`;
+  say(snd(i),'l'+i)}},
+forms(i=1){
+ const j=L[i][3],N=['Isolated','Initial','Medial','Final'],lock=p=>!j&&(p==1||p==2),V=[["َ","a"],["ُ","u"],["ِ","i"],["ْ",""],["َا","aa"],["ُو","uu"],["ِي","ee"]];
+ const fi=(ix,n)=>{const pv=n>0&&L[ix[n-1]][3],nx=n<ix.length-1&&L[ix[n]][3];return pv&&nx?2:pv?3:nx?1:0};
+ m.innerHTML=`<h2 style="margin:2px">Four forms</h2><select id=sel>${L.map((l,k)=>`<option value=${k} ${k==i?'selected':''}>${l[0]} ${l[1]}</option>`).join('')}</select> <button id=all style="min-height:40px;padding:6px 10px">▶ Shape-shift all</button><div style="display:flex;gap:8px;margin:6px 0"><div id=sh class=ar style="font-size:4rem;line-height:1.3;width:34%">&nbsp;</div><div id=ex style="flex:1;max-height:170px;overflow:auto;border:3px dashed #3b2f63;border-radius:14px;padding:4px"></div></div><div id=fb class=grid style="gap:6px;margin-top:4px">`+N.map((n,p)=>`<button class="t ar" data-p=${p} style="font-size:2.2rem;min-height:0;padding:2px">${lock(p)?'🔒':frmv(i,p)}<br><small style="font:12px sans-serif">${n}</small></button>`).join('')+`</div><b style="font-size:.9rem">Vowels</b><div id=vw class=grid style="grid-template-columns:repeat(7,1fr);gap:4px;margin-top:2px">`+V.map((v,q)=>`<button class="t ar" data-q=${q} style="font-size:1.5rem;min-height:0;padding:2px">${L[i][0]+v[0]}<br><small style="font:11px sans-serif">${L[i][2]}${v[1]}</small></button>`).join('')+`</div>`;
+ const list=(title,ks,mk)=>{$('#ex').innerHTML=`<small><b>${title}</b></small>`+(ks.length?`<div class=grid style="grid-template-columns:repeat(2,1fr);gap:4px;margin:2px 0">`+ks.map(k=>{const ix=W[k][0];return `<button class=t data-k=${k} style="font-size:1.6rem;min-height:0;padding:2px"><span class=ar>${ix.map((x,n)=>`<span style="color:${mk(ix,n)?'#e63946':'#3b2f63'}">${wf(ix,n)}</span>`).join('')}</span><br><small style="font:11px sans-serif">${W[k][3]} ${W[k][2]}</small></button>`}).join('')+`</div>`:'<p>No word yet</p>')};
+ const pick=f=>W.map((w,k)=>k).filter(k=>W[k][0].some((x,n)=>f(W[k][0],n))).slice(0,6);
+ const show=(p,q)=>{if(lock(p)){$('#sh').textContent='🔒';$('#ex').innerHTML='<small>Shy letter: it never joins the next letter!</small>';return}
+  $('#sh').innerHTML=`<span class=w>${frmv(i,p)}</span>`;if(!q)say(snd(i),'l'+i);
+  const mk=(ix,n)=>ix[n]==i&&fi(ix,n)==p;list(`Words with ${N[p]} ${frmv(i,p)}`,pick(mk),mk)};
+ $('#sel').onchange=e=>go('forms',+e.target.value);
+ $('#fb').onclick=e=>{const b=e.target.closest('button');if(b)show(+b.dataset.p)};
+ $('#ex').onclick=e=>{const b=e.target.closest('button');if(b)S.word(+b.dataset.k)};
+ $('#vw').onclick=e=>{const b=e.target.closest('button');if(!b)return;const q=+b.dataset.q,t=L[i][0]+V[q][0],mk=(ix,n)=>ix[n]==i;$('#sh').innerHTML=`<span class=w>${t}</span>`;say(t,'v'+i+'_'+q);vlist(i,q,t)};
+ $('#all').onclick=()=>{[0,1,2,3].forEach((p,n)=>later(()=>show(p),n*2800))};
+ show(lock(1)?0:1,true)},
+words(){
+ m.innerHTML=`<h2>Pick a word</h2><div class=grid style="grid-template-columns:repeat(2,1fr)">`+W.map((w,k)=>`<button class=t data-k=${k}><span class=ar>${w[1]}</span><br><small style="font:14px sans-serif">${w[3]} ${w[2]}<br>“${w[4]}”</small></button>`).join('')+`</div>`;
+ m.querySelector('.grid').onclick=e=>{const b=e.target.closest('button');if(b)S.word(+b.dataset.k)}},
+word(k){
+ m.innerHTML=`<h2>${W[k][3]} ${W[k][2]} — “${W[k][4]}”</h2><div id=out class="big ar" style="min-height:130px"></div><div id=info></div><button id=wb>▶ Watch</button> <button id=bb>🧱 Build it</button> <button id=fx>🔧 Fix it</button><div id=bd></div>`;
+ $('#wb').onclick=()=>watch(k);$('#bb').onclick=()=>build(k);$('#fx').onclick=()=>fix(k)},
+island(){m.innerHTML=`<h2>🏝️ My Island</h2>${CAT}<div style="font-size:3rem;min-height:120px">`+(built.length?built.map(k=>W[k][3]).join(' '):'Build words to grow your island!')+`</div><p>${built.length}/${W.length} words built</p><p>${Object.keys(miss).length?"Practice: "+Object.entries(miss).sort((a,b)=>b[1]-a[1]).slice(0,4).map(e=>L[e[0]][0]).join(" "):""}</p>`},
+toss(){
+ const J=L.map((l,i)=>i).filter(i=>L[i][3]);
+ const round=()=>{const P=J.flatMap(i=>Array(1+(miss[i]||0)).fill(i)),i=P[Math.random()*P.length|0],p=Math.random()*4|0;
+  m.innerHTML=`<h2>Where does the cat throw it?</h2><div class=cat>🐱⚽</div><div class="big ar">${frm(i,p)}</div><p>Pot = alone · Hens = start · Mouse = middle · House = end</p>`+[['🫕','Pot'],['🐔','Hens'],['🐭','Mouse'],['🏠','House']].map((t,q)=>`<button class=t data-q=${q}>${t[0]}<br><small style="font:14px sans-serif">${t[1]}</small></button>`).join(' ');
+  m.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{
+   if(+b.dataset.q==p){boom();addStar();say(snd(i),'l'+i);later(round,1200)}
+   else{bump(i);b.classList.add('sh');setTimeout(()=>b.classList.remove('sh'),400)}})};
+ round()}};
+
+function finish(k){$('#out').classList.add('snap');$('#info').innerHTML=`<div class=card><h3>${W[k][3]} ${W[k][1]} = ${W[k][2]} (“${W[k][4]}”)</h3></div>`;say(W[k][1],'w'+k);boom();addStar();grow(k);try{navigator.vibrate(60)}catch(e){}}
+function fix(k){T.forEach(clearTimeout);T=[];const ix=W[k][0].slice(),q=Math.random()*ix.length|0,good=ix[q];let bad;do{bad=Math.random()*28|0}while(bad==good);ix[q]=bad;
+ $('#info').textContent='One letter is wrong. Tap it!';$('#bd').innerHTML='';
+ $('#out').innerHTML=ix.map((x,n)=>`<button class="t ar" data-n="${n}">${wf(ix,n)}</button>`).join('');
+ $('#out').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(+b.dataset.n!=q){b.classList.add('sh');return}
+  const o=shuf([good,bad,shuf(L.map((l,i)=>i).filter(i=>i!=good&&i!=bad))[0]]);$('#info').textContent='Pick the right letter';
+  $('#bd').innerHTML=`<div class="grid ar">`+o.map(x=>`<button class="t ar" data-x=${x}>${L[x][0]}</button>`).join('')+`</div>`;
+  $('#bd').onclick=f=>{const c=f.target.closest('button');if(!c)return;if(+c.dataset.x==good){$('#out').onclick=null;$('#bd').innerHTML='';const w=W[k][0];$('#out').innerHTML=w.map((y,n)=>`<span style="color:${COL[n%6]}">${wf(w,n)}</span>`).join('');finish(k)}else{c.classList.add('sh');say(snd(good),'l'+good)}}}}
+function watch(k){
+ T.forEach(clearTimeout);T=[];const ix=W[k][0],out=$('#out');out.innerHTML='';$('#info').innerHTML='';$('#bd').innerHTML='';
+ ix.forEach((x,n)=>{later(()=>say(snd(x),'l'+x),n*STEP);
+  later(()=>{const s=document.createElement('span');s.className='pop';s.style.cssText=`color:${COL[n%6]};display:inline-block`;s.textContent=wf(ix,n);out.appendChild(s);if(!L[x][3]&&n<ix.length-1)$('#info').textContent='🙈 Shy letter: it won’t hold hands!'},n*STEP+LEAD)});
+ later(()=>finish(k),ix.length*STEP+LEAD+500)}
+function build(k){
+ T.forEach(clearTimeout);T=[];const ix=W[k][0];let pos=0;
+ const dec=shuf(L.map((l,i)=>i).filter(i=>!ix.includes(i))).slice(0,2);
+ $('#out').innerHTML=ix.map(()=>`<span class=box></span>`).join('');$('#info').innerHTML='';
+ $('#bd').innerHTML=`<div class="grid ar">`+shuf(ix.map((x,q)=>[x,q]).concat(dec.map(x=>[x,Math.random()*ix.length|0]))).map(([x,q])=>{const t=ix.slice();t[q]=x;return `<button class="t ar" data-x=${x}>${wf(t,q)}</button>`}).join('')+`</div>`;
+ const bx=[...$('#out').children];
+ $('#bd').onclick=e=>{const b=e.target.closest('button');if(!b||pos>=ix.length)return;const x=+b.dataset.x;
+  if(x==ix[pos]){const c=bx[pos];c.textContent=wf(ix,pos);c.style.color=COL[pos%6];c.classList.add('pop');say(snd(x),'l'+x);b.style.visibility='hidden';pos++;
+   if(pos==ix.length)later(()=>{$('#out').innerHTML=ix.map((y,n)=>`<span style="color:${COL[n%6]}">${wf(ix,n)}</span>`).join('');finish(k)},600)}
+  else{const c=bx[pos];c.classList.add('sh');c.textContent='🤔';bump(ix[pos]);say(snd(ix[pos]),'l'+ix[pos]);later(()=>{c.classList.remove('sh');c.textContent=''},600)}}}
+
+const NAV=[["home","🏠 Home"],["letters","🔤 Letters"],["forms","🧩 Forms"],["words","📖 Words"],["toss","🎯 Toss"],["island","🏝️ Island"]];
+$('#nav').innerHTML=NAV.map(([k,t])=>`<button data-s="${k}">${t}</button>`).join('');
+$('#nav').onclick=e=>{const s=e.target.dataset.s;if(s)go(s)};
+function go(s,a,b){try{speechSynthesis.cancel()}catch(e){}T.forEach(clearTimeout);T=[];S[s](a,b)}
+$('#st').textContent='⭐ '+stars;go('home');
+setTimeout(()=>{const d=document.createElement('div');d.className='toast';d.textContent='🐱 Stretch break! 10 minutes played.';document.body.appendChild(d);setTimeout(()=>d.remove(),8000)},600000);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
